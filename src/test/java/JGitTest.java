@@ -1,4 +1,5 @@
 import cn.xz.blog.git.config.GitConfig;
+import cn.xz.blog.git.repository.impl.GitRepositoryImpl;
 import com.google.common.io.MoreFiles;
 import java.io.File;
 import java.text.MessageFormat;
@@ -25,10 +26,16 @@ public class JGitTest {
 
 
         gitConfig.setRepository("https://github.com/xyz327/dubbo-example.git");
-        gitConfig.setDirectory("/home/kiway067/workspace/blog/src/test/git");
-        gitConfig.setForceClone(false);
+        gitConfig.setRepository("https://git.coding.net/xyz327/blog.git");
+        String workDir = System.getProperty("user.dir") + "/work";
+        gitConfig.setDirectory(workDir);
+        gitConfig.setForceClone(true);
 
-        File localWorkspace = new File(gitConfig.getDirectory());
+
+        GitRepositoryImpl gitRepository = new GitRepositoryImpl();
+
+        gitRepository.cloneRepository(gitConfig);
+       /* File localWorkspace = new File(gitConfig.getDirectory());
         if (!localWorkspace.canWrite()) {
             throw new IllegalStateException("directory不可写,请检查权限");
         }
@@ -60,6 +67,6 @@ public class JGitTest {
         } catch (IllegalStateException e) {
             e.printStackTrace();
         }
-
+*/
     }
 }

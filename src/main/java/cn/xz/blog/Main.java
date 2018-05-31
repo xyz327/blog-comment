@@ -1,11 +1,13 @@
 package cn.xz.blog;
 
 import cn.xz.blog.config.SiteConfig;
+import cn.xz.blog.reRoute.RequestPathRewrite;
 import com.google.common.base.Strings;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
 import java.nio.file.Path;
@@ -29,14 +31,18 @@ public class Main extends AbstractVerticle {
         init();
         Vertx vertx = getVertx();
         Path workDir = Paths.get(siteConfig.getWorkDir());
+
+        Path webDir = Paths.get(workDir.toString(), siteConfig.getWebDir());
         log.info("work dir:{}", workDir);
+        log.info("web dir:{}", webDir);
         Router router = Router.router(vertx);
         // admin route
         router.mountSubRouter("/admin", adminRouter(vertx));
+
+        RequestPathRewrite requestPathRewrite = null;
         // front route
-        router.route().handler(routeContext -> {
-            HttpServerResponse response = routeContext.response();
-        });
+        new FrontRoute().route(router);
+
         HttpServerOptions httpServerOptions = new HttpServerOptions();
         HttpServer httpServer = vertx.createHttpServer(httpServerOptions)
             .requestHandler(router::accept)
@@ -44,19 +50,21 @@ public class Main extends AbstractVerticle {
     }
 
     private Router adminRouter(Vertx vertx) {
-        return Router.router(vertx);
+        Router router = Router.router(vertx);
+        new AdminRoute().route(router);
+        return router;
     }
 
 
     private void init() {
         siteConfig = new SiteConfig();
-        String workDir = System.getProperty("user.dir");
+        String workDir = System.getProperty("user.dir") + "/work";
         if (Strings.isNullOrEmpty(siteConfig.getWorkDir())) {
             siteConfig.setWorkDir(workDir);
         }
         System.out.println("用户的当前工作目录:" + siteConfig.getWorkDir());
         //=========test
-        siteConfig.setWebPath("web");
+        siteConfig.setWebDir("web");
     }
 
     public static void main(String[] args) {

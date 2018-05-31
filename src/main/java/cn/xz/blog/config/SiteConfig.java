@@ -15,7 +15,7 @@ public class SiteConfig {
     /**
      * web页面的文件夹路径
      */
-    private String webPath;
+    private String webDir;
     /**
      * 服务器端口
      */
